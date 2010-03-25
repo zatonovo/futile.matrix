@@ -1,116 +1,3 @@
-# Get either names or colnames from a list or data.frame. This attempts to 
-# create some polymorphism around lists, vectors, and data.frames.
-anynames <- function(data)
-{
-  ns <- names(data)
-  if (is.null(ns)) { ns <- colnames(data) }
-  ns
-}
-
-"anynames<-" <- function(data, value)
-{
-  if (is.null(names(data))) colnames(data) <- value
-  else names(data) <- value
-  invisible(data)
-}
-
-# Gets the length of a vector or the rows of a matrix or data frame.
-anylength <- function(data)
-{
-  len <- nrow(data)
-  if (is.null(len)) { len <- length(data) }
-  len
-}
-
-# Lists out the types of a data.frame or other object that supports anynames
-anytypes <- function(data, fun=class)
-{
-  ts <- apply(matrix(anynames(data), ncol=1), 1, function(x) fun(data[,x]))
-  names(ts) <- anynames(data)
-
-  return(ts)
-}
-
-
-# Similar to rollapply but the values are inline, such that the next iteration
-# can act on the newly minted values
-# Example
-# inlineapply(c(1,1,2,3,5), 2, sum)
-# [1]  1  2  4  7 12
-inlineapply <- function(data, width, fun, ..., col=NA, include.idx=FALSE)
-{
-  type <- 'normal'
-  if (!is.na(col)) type <- 'col'
-  do.call(paste('inlineapply.',type,sep=''),
-    list(data=data,width=width, fun=fun, ..., col=col,include.idx=include.idx))
-}
-
-inlineapply.normal <- function(data, width, fun, ..., include.idx=FALSE)
-{
-  idxs <- width:anylength(data)
-  if (include.idx)
-  {
-    for (idx in idxs)
-    {
-      inf <- idx - width + 1
-      if (is.na(sum(data[inf:idx]))) { next }
-      data[idx] <- fun(data[inf:idx], idx=idx, ...)
-    }
-  }
-  else
-  {
-    for (idx in idxs)
-    {
-      inf <- idx - width + 1
-      if (is.na(sum(data[inf:idx]))) { next }
-      data[idx] <- fun(data[inf:idx], ...)
-    }
-  }
-  data
-}
-
-inlineapply.col <- function(data, width, fun, ..., col=NA, include.idx=FALSE)
-{
-  idxs <- width:anylength(data)
-  if (include.idx)
-  {
-    for (idx in idxs)
-    {
-      inf <- idx - width + 1
-      if (is.na(sum(data[inf:idx]))) { next }
-      data[idx,col] <- fun(data[inf:idx], idx=idx, ...)
-    }
-  }
-  else
-  {
-    for (idx in idxs)
-    {
-      inf <- idx - width + 1
-      if (is.na(sum(data[inf:idx]))) { next }
-      data[idx,col] <- fun(data[inf:idx], ...)
-    }
-  }
-  data
-}
-
-# Get the middle value in the series
-mid <- function(x)
-{
-  if (is.null(nrow(x)))
-  {
-    len <- length(x)
-    if (len %% 2 == 0) { m <- x[len/2] }
-    else { m <- x[len %/% 2 +1] }
-  }
-  else
-  {
-    len <- nrow(x)
-    if (len %% 2 == 0) { m <- x[len/2,] }
-    else { m <- x[len %/% 2 +1,] }
-  }
-  m
-}
-
 
 # Return a portion of a matrix. This is useful for debugging.
 peek <- function(x, upper=5, lower=1)
@@ -126,17 +13,92 @@ peek <- function(x, upper=5, lower=1)
   return(x[lower:upper.row,lower:upper.col])
 }
 
-# Append a value to a vector. This is syntactic sugar
-# v <- c(2,3,4)
-# z(v) <- 6
-# v
-"z<-" <- function(x, value)
+
+# Expand the matrix m into the larger matrix defined by row.ids x col.ids
+# target - either another matrix that defines row and column names or a list
+# where target[[0]] are the row names and target[[1]] are the column names
+# TODO: Consistency check to ensure all rownames/colnames of m are a subset
+# of target
+expand <- function(m, target, default=0)
 {
-  invisible(append(x, value))
+  if ('list' %in% class(target)) { dims <- target }
+  else if ('matrix' %in% class(target))
+  {
+    dims <- list(rownames(target), colnames(target))
+  }
+  else { stop("Argument target must be either a matrix or a list") }
+
+  # Build out rows to new dimensions
+  filler.row <- matrix(
+    rep(default, ncol(m) * (anylength(dims[[1]]) - nrow(m))), ncol=ncol(m),
+    dimnames=list(setdiff(dims[[1]], rownames(m)), colnames(m)) )
+
+  full <- rbind(m, filler.row)
+  # Add all other columns
+  filler.col <- matrix(
+    rep(default, nrow(full) * (anylength(dims[[2]]) - ncol(full))),
+    nrow=nrow(full),
+    dimnames=list(rownames(full), setdiff(dims[[2]], colnames(full))) )
+  full <- cbind(full, filler.col)
+  # Sort
+  arrange(full)
 }
 
-# Prepend to the beginning of a vector
-"a<-" <- function(x, value)
+# Select a portion of a matrix based on a regular expression of the row and/or
+# column names.
+select <- function(m, row.pat=NULL, col.pat=NULL, ...)
 {
-  invisible(c(value, x))
+  out <- m
+  if (! is.null(row.pat))
+  {
+    out <- out[grep(row.pat, rownames(out), ...), , drop=FALSE]
+  }
+
+  if (! is.null(col.pat))
+  {
+    out <- out[, grep(col.pat, colnames(out), ...), drop=FALSE]
+  }
+  out
 }
+
+
+# Select a portion of a matrix based on a regular expression and assign the
+# subset to value. Dimensional integrity is required, otherwise an error will
+# result.
+"select<-" <- function(m, row.pat=NULL, col.pat=NULL, ..., value)
+{
+  if (is.null(row.pat) & is.null(col.pat))
+  { stop("Either row.pat or col.pat must be set") }
+
+  if (! is.null(row.pat) & is.null(col.pat))
+  {
+    m[grep(row.pat, rownames(m), ...),] <- value
+  }
+  else if (is.null(row.pat) & ! is.null(col.pat))
+  {
+    m[, grep(col.pat, colnames(m), ...)] <- value
+  }
+  else
+  {
+    rows <- grep(row.pat, rownames(m), ...)
+    cols <- grep(col.pat, colnames(m), ...)
+    m[rows,cols] <- value
+  }
+  invisible(m)
+}
+
+
+# Order rows and columns in a matrix
+arrange <- function(m, order.rows=TRUE, order.cols=TRUE)
+{
+  #if (is.null(col.ids)) col.ids <- colnames(m)
+  #if (is.null(row.ids)) row.ids <- rownames(m)
+
+  if (order.rows & order.cols)
+    m[order(rownames(m)),order(colnames(m)), drop=FALSE]
+  else if(order.cols)
+    m[,order(colnames(m)), drop=FALSE]
+  else if(order.rows)
+    m[order(rownames(m)), , drop=FALSE]
+}
+
