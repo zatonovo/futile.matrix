@@ -1,34 +1,32 @@
 # TODO: remove any ids in columns/rows that don't appear in the triplet form as
 # this breaks the CSR construction algorithm.
-read.matrix <- function(date, name, format, ..., filter.fn=NULL)
+read.matrix <- function(file, header=TRUE, skip=0, 
+  colClasses=c('character','character','numeric'), filter.fn=NULL, ...)
 {
-  date <- td(date)
-  client <- re.options('client')
-  if (is.null(client)) { stop("re.option client is required") }
-  home <- re.options('home')
-  if (is.null(home)) { home = "." }
+  if ('connection' %in% class(file)) { zz <- file }
+  else if (grep("\\.gz(ip)?$", file) == 1) { zz <- gzfile(file) }
+  else { zz <- file(file) }
 
-  path <- sprintf(format, home, client,fd(date))
-  zz <- gzfile(path)
+  if (header)
+  {
+    logger.debug('Loading ids')
+    all.ids <- strsplit(readLines(zz, n=2), ',', fixed=TRUE)
 
-  # First row contains column names
-  logger.debug('Loading ids')
-  all.ids <- strsplit(readLines(zz, n=2), ',', fixed=TRUE)
-  col.ids <- all.ids[[1]]
-  row.ids <- all.ids[[2]]
+    # First row contains column names
+    col.ids <- all.ids[[1]]
+    col.ids <- col.ids[col.ids != '']
 
-  #col.ids <- scan(zz, what='character', sep=',', nlines=1, quiet=TRUE)
-  col.ids <- col.ids[col.ids != '']
+    # Second row contains row names
+    row.ids <- all.ids[[2]]
+    row.ids <- row.ids[row.ids != '']
 
-  # Second row contains row names
-  #logger.debug('Loading row ids')
-  #row.ids <- scan(zz, what='character', sep=',', nlines=1, skip=1, quiet=TRUE)
-  row.ids <- row.ids[row.ids != '']
+    # Assume that if skip has been set, then the user knows what they are doing
+    if (skip == 0) { skip <- 2 }
+  }
 
   logger.debug('Reading triplet representation of %s', name)
   zz <- gzfile(path)
-  pts <- read.csv(zz, colClasses=c('character','character','numeric'), skip=2,
-    header=FALSE)
+  pts <- read.csv(zz, colClasses=colClasses, skip=2, header=FALSE)
   colnames(pts) <- c('row.id','col.id','value')
   logger.debug('Got raw %s: [%s,%s]', name, nrow(pts), ncol(pts))
   if (!is.null(filter.fn))

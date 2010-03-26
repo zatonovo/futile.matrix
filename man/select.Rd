@@ -34,6 +34,7 @@ select(m, row.pat = NULL, col.pat = NULL, ...)
 }
 \author{ Brian Lee Yung Rowe }
 \examples{
+  library(datasets)
   select(swiss, "Rive")
 
   select(swiss, col.pat="^E", invert=TRUE)

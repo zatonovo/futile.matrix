@@ -89,7 +89,7 @@ select <- function(m, row.pat=NULL, col.pat=NULL, ...)
 
 
 # Order rows and columns in a matrix
-arrange <- function(m, order.rows=TRUE, order.cols=TRUE)
+arrange <- function(m, order.rows=TRUE, order.cols=TRUE, comparator=NULL)
 {
   #if (is.null(col.ids)) col.ids <- colnames(m)
   #if (is.null(row.ids)) row.ids <- rownames(m)
