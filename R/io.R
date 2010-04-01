@@ -1,5 +1,13 @@
-require(futile.logger)
-.log <- getLogger("futile.matrix")
+.onLoad <- function(libname, pkgname)
+{
+  .resetLogger()
+}
+
+.resetLogger <- function()
+{
+  require(futile.logger)
+  .log <<- getLogger("futile.matrix")
+}
 
 # TODO: remove any ids in columns/rows that don't appear in the triplet form as
 # this breaks the CSR construction algorithm.
