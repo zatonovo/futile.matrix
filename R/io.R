@@ -112,7 +112,7 @@ read.matrix <- function(file, header=FALSE, skip=1,
 
   m <- assignMatrixSparse(pts, row.ids, col.ids, ...)
   .log(DEBUG,sprintf('Assigned values to %s', file))
-  .log(DEBUG,'Converting to non-sparse matrix')
+  .log(DEBUG,'Converting to dense matrix')
   m <- as.matrix(m)
   .log(DEBUG,'Attaching names')
   colnames(m) <- toupper(col.ids)
