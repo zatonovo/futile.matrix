@@ -37,10 +37,10 @@ select(m, row.pat = NULL, col.pat = NULL, ...)
   library(datasets)
   select(swiss, "Rive")
 
-  select(swiss, col.pat="^E", invert=TRUE)
+  select(swiss, col.pat="E", fixed=TRUE)
 
-  select(swiss, row.pat='^[A-T]', col.pat="^E", invert=TRUE)
+  select(swiss, row.pat='^[A-T]', col.pat="^E")
 
-  select(swiss, "Rive") <- min(select(swiss,"Rive", invert=TRUE))
+  select(swiss, "Rive", "Ed") <- min(select(swiss, "^[^R]", "Ed"))
 }
 \keyword{ array }

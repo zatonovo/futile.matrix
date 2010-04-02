@@ -47,7 +47,7 @@ Brian Lee Yung Rowe <r@nurometic.com>
 \examples{
 library(datasets)
 select(swiss, "Rive")
-select(swiss, col.pat='^E', invert=TRUE)
+select(swiss, col.pat='^E')
 select(swiss, "Rive", '^E') <- -1
 
 dimnames <- list( c(rownames(swiss), 'Zermat', 'Zurich', 'Geneva'),
