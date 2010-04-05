@@ -70,7 +70,8 @@
 # system.time(m <- read.slam('triplet.csv'))
 read.matrix <- function(file, header=FALSE, skip=1, 
   row.ids=NULL, col.ids=NULL,
-  colClasses=c('character','character','numeric'), filter.fn=NULL, ...)
+  colClasses=c('character','character','numeric'), 
+  assign.fn=assignMatrixTriplet, filter.fn=NULL, ...)
 {
   #logger <- getLogger("futile.matrix")
 
@@ -103,14 +104,8 @@ read.matrix <- function(file, header=FALSE, skip=1,
   col.ids <- col.ids[order(col.ids)]
   pts <- pts[order(pts$row.id,pts$col.id),]
 
-  # Remove records in id lists that are not present in the actual data body.
-  # This is necessary to conform to CSR construction rules.
-  row.ids <- row.ids[row.ids %in% pts$row.id]
-  col.ids <- col.ids[col.ids %in% pts$col.id]
-
-  .log(DEBUG,sprintf("Output matrix will be [%s,%s]", length(row.ids),length(col.ids)))
-
-  m <- assignMatrixSparse(pts, row.ids, col.ids, ...)
+  #m <- assignMatrixSparse(pts, row.ids, col.ids, ...)
+  m <- assign.fn(pts, row.ids, col.ids, ...)
   .log(DEBUG,sprintf('Assigned values to %s', file))
   .log(DEBUG,'Converting to dense matrix')
   m <- as.matrix(m)
@@ -132,6 +127,12 @@ assignMatrixSparse <- function(source, row.ids, col.ids,
   msg.col <- "Calculating column indexes for %s elements (map size: %s)"
   msg.row <- "Calculating row indexes for %s elements (map size: %s)"
   msg.lookup <- "Looking up block %s/%s [%s:%s] of source"
+
+  # Remove records in id lists that are not present in the actual data body.
+  # This is necessary to conform to CSR construction rules.
+  row.ids <- row.ids[row.ids %in% source$row.id]
+  col.ids <- col.ids[col.ids %in% source$col.id]
+  .log(DEBUG,sprintf("Output matrix will be [%s,%s]", length(row.ids),length(col.ids)))
 
   n <- length(row.ids)
   m <- length(col.ids)
@@ -230,4 +231,22 @@ assignMatrixDense <- function(source, row.ids, col.ids)
   colnames(m) <- col.ids
   m
 }
+
+# Assign the matrix using the SLAM triplet construction
+assignMatrixTriplet <- function(source, row.ids, col.ids, ...)
+{
+  require(futile.logger)
+  require(slam)
+
+  row.idx <- 1:length(row.ids)
+  names(row.idx) <- row.ids
+  col.idx <- 1:length(col.ids)
+  names(col.idx) <- col.ids
+ 
+  i <- row.idx[source$row.id]
+  j <- col.idx[source$col.id]
+  v <- source$value
+  simple_triplet_matrix(i,j,v, nrow=length(row.ids), ncol=length(col.ids), ...)
+}
+
 
