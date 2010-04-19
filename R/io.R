@@ -53,7 +53,8 @@
 }
 
 
-# About 20s to load a 10000 x 10000 sparse matrix, 413MB memory
+# About 6.7s to load a 1000 x 1000 sparse matrix with 2500 values, 90MB memory
+# About 4.9s to load 10000 x 10000 sparse matrixm 600 MB memory
 # rows <- paste('row', 1:10000, sep='.')
 # cols <- paste('col', 1:10000, sep='.')
 # m <- read.matrix('triplet.csv', row.ids=rows, col.ids=cols)
@@ -71,7 +72,7 @@
 read.matrix <- function(file, header=FALSE, skip=1, 
   row.ids=NULL, col.ids=NULL,
   colClasses=c('character','character','numeric'), 
-  assign.fn=assignMatrixTriplet, filter.fn=NULL, ...)
+  assign.fn=assignMatrixDense, filter.fn=NULL, ...)
 {
   #logger <- getLogger("futile.matrix")
 
@@ -87,8 +88,8 @@ read.matrix <- function(file, header=FALSE, skip=1,
   colnames(pts) <- c('row.id','col.id','value')
   .log(DEBUG,sprintf('Got raw %s: [%s,%s]', file, nrow(pts), ncol(pts)))
 
-  if (is.null(row.ids)) row.ids <- pts[,1]
-  if (is.null(col.ids)) col.ids <- pts[,2]
+  if (is.null(row.ids)) row.ids <- unique(pts[,1])
+  if (is.null(col.ids)) col.ids <- unique(pts[,2])
 
   if (!is.null(filter.fn))
   {
@@ -119,96 +120,99 @@ read.matrix <- function(file, header=FALSE, skip=1,
 # Creates a sparse matrix in CSR format based on a triplet input
 # Note that inputs must all be ordered otherwise this will violate the CSR
 # spec during construction
-assignMatrixSparse <- function(source, row.ids, col.ids,
-  row.block=500000, col.block=500000)
-{
-  require(futile.logger)
-  require(SparseM)
-  msg.col <- "Calculating column indexes for %s elements (map size: %s)"
-  msg.row <- "Calculating row indexes for %s elements (map size: %s)"
-  msg.lookup <- "Looking up block %s/%s [%s:%s] of source"
-
-  # Remove records in id lists that are not present in the actual data body.
-  # This is necessary to conform to CSR construction rules.
-  row.ids <- row.ids[row.ids %in% source$row.id]
-  col.ids <- col.ids[col.ids %in% source$col.id]
-  .log(DEBUG,sprintf("Output matrix will be [%s,%s]", length(row.ids),length(col.ids)))
-
-  n <- length(row.ids)
-  m <- length(col.ids)
-
-  # This blocking is done for performance reasons. There seems to be some
-  # cutoff in vector size in certain operations that causes serious slowdowns.
-  block.size <- col.block
-  num.pieces <- nrow(source) %/% block.size + 1
-  lookup <- function(idx, map, source)
-  {
-    inf <- block.size * (idx - 1) + 1
-    sup <- ifelse(idx == num.pieces, length(source), idx * block.size)
-    .log(DEBUG,sprintf(msg.lookup, idx, num.pieces, inf, sup))
-    map[source[inf:sup]]
-  }
-
-  .log(DEBUG,sprintf(msg.col, nrow(source), m))
-  col.map <- as.integer(1:length(col.ids))
-  names(col.map) <- col.ids
-  col.idx.list <- apply(array(1:num.pieces), 1, lookup, col.map, source$col.id)
-  if (! class(col.idx.list) %in% 'list') col.idx.list <- list(col.idx.list)
-  # This is the map of (s)ids to their corresponding column number in the
-  # column definition. Values are the index position and the names are the
-  # (s)ids. The ordering needs to be consistent with the row.idx
-  col.idx <- do.call(c, col.idx.list)
-
-  .log(DEBUG,sprintf(msg.row, nrow(source), n))
-  block.size <- row.block
-  num.pieces <- nrow(source) %/% block.size + 1
-  row.map <- as.integer(1:length(row.ids))
-  names(row.map) <- row.ids
-  row.idx.list <- apply(array(1:num.pieces), 1, lookup, row.map, source$row.id)
-  if (! class(row.idx.list) %in% 'list') row.idx.list <- list(row.idx.list)
-  # This is the map of (s)ids to their corresponding row number in the row
-  # definition. Values are the index position and the names are the (s)ids.
-  # The ordering needs to be consistent with the row.idx
-  row.idx <- do.call(c, row.idx.list)
-
-  .log(DEBUG,sprintf("Calculating ias", n))
-  idxes <- rep(0, n+1)
-  idxes[1] <- 1
-  idx <- 0
-  prev <- 1
-  # The idxes become the ias in the CSR format. For this to work, the row ids
-  # need to be ordered otherwise the position values are not monotonically
-  # increasing which violates the CSR spec.
-  tryCatch(
-  for (r in row.idx)
-  {
-    idx <- idx + 1
-    if (is.na(r))
-    {
-      .log(WARN,sprintf("Skipping bad row match at index %s", idx))
-      next
-    }
-    if (r == prev) next
-    if (idx <= 0)
-    {
-      .log(WARN,sprintf("Bad index value encountered: %s", idx))
-    }
-    idxes[r] <- idx
-    prev <- r
-  }, finally=.log(DEBUG,sprintf("prev=%s, r=%s",prev,r)))
-  idxes[length(idxes)] <- nrow(source) + 1
-
-  .log(DEBUG,sprintf("Creating sparse matrix with dimensions [%s,%s]", n,m))
-  m.ra <- source$value
-  m.ja <- as.integer(col.idx)
-  m.ia <- as.integer(idxes)
-  d <- as.integer(c(n,m))
-
-  new('matrix.csr', ra=m.ra, ja=m.ja, ia=m.ia, dimension=d)
-}
+# This is failing on the as.matrix for some reason, so this is alwo going away
+# to streamline the package.
+#assignMatrixSparse <- function(source, row.ids, col.ids,
+#  row.block=500000, col.block=500000)
+#{
+#  require(futile.logger)
+#  require(SparseM)
+#  msg.col <- "Calculating column indexes for %s elements (map size: %s)"
+#  msg.row <- "Calculating row indexes for %s elements (map size: %s)"
+#  msg.lookup <- "Looking up block %s/%s [%s:%s] of source"
+#
+#  # Remove records in id lists that are not present in the actual data body.
+#  # This is necessary to conform to CSR construction rules.
+#  row.ids <- row.ids[row.ids %in% source$row.id]
+#  col.ids <- col.ids[col.ids %in% source$col.id]
+#  .log(DEBUG,sprintf("Output matrix will be [%s,%s]", length(row.ids),length(col.ids)))
+#
+#  n <- length(row.ids)
+#  m <- length(col.ids)
+#
+#  # This blocking is done for performance reasons. There seems to be some
+#  # cutoff in vector size in certain operations that causes serious slowdowns.
+#  block.size <- col.block
+#  num.pieces <- nrow(source) %/% block.size + 1
+#  lookup <- function(idx, map, source)
+#  {
+#    inf <- block.size * (idx - 1) + 1
+#    sup <- ifelse(idx == num.pieces, length(source), idx * block.size)
+#    .log(DEBUG,sprintf(msg.lookup, idx, num.pieces, inf, sup))
+#    map[source[inf:sup]]
+#  }
+#
+#  .log(DEBUG,sprintf(msg.col, nrow(source), m))
+#  col.map <- as.integer(1:length(col.ids))
+#  names(col.map) <- col.ids
+#  col.idx.list <- apply(array(1:num.pieces), 1, lookup, col.map, source$col.id)
+#  if (! class(col.idx.list) %in% 'list') col.idx.list <- list(col.idx.list)
+#  # This is the map of (s)ids to their corresponding column number in the
+#  # column definition. Values are the index position and the names are the
+#  # (s)ids. The ordering needs to be consistent with the row.idx
+#  col.idx <- do.call(c, col.idx.list)
+#
+#  .log(DEBUG,sprintf(msg.row, nrow(source), n))
+#  block.size <- row.block
+#  num.pieces <- nrow(source) %/% block.size + 1
+#  row.map <- as.integer(1:length(row.ids))
+#  names(row.map) <- row.ids
+#  row.idx.list <- apply(array(1:num.pieces), 1, lookup, row.map, source$row.id)
+#  if (! class(row.idx.list) %in% 'list') row.idx.list <- list(row.idx.list)
+#  # This is the map of (s)ids to their corresponding row number in the row
+#  # definition. Values are the index position and the names are the (s)ids.
+#  # The ordering needs to be consistent with the row.idx
+#  row.idx <- do.call(c, row.idx.list)
+#
+#  .log(DEBUG,sprintf("Calculating ias", n))
+#  idxes <- rep(0, n+1)
+#  idxes[1] <- 1
+#  idx <- 0
+#  prev <- 1
+#  # The idxes become the ias in the CSR format. For this to work, the row ids
+#  # need to be ordered otherwise the position values are not monotonically
+#  # increasing which violates the CSR spec.
+#  tryCatch(
+#  for (r in row.idx)
+#  {
+#    idx <- idx + 1
+#    if (is.na(r))
+#    {
+#      .log(WARN,sprintf("Skipping bad row match at index %s", idx))
+#      next
+#    }
+#    if (r == prev) next
+#    if (idx <= 0)
+#    {
+#      .log(WARN,sprintf("Bad index value encountered: %s", idx))
+#    }
+#    idxes[r] <- idx
+#    prev <- r
+#  }, finally=.log(DEBUG,sprintf("prev=%s, r=%s",prev,r)))
+#  idxes[length(idxes)] <- nrow(source) + 1
+#
+#  .log(DEBUG,sprintf("Creating sparse matrix with dimensions [%s,%s]", n,m))
+#  m.ra <- source$value
+#  m.ja <- as.integer(col.idx)
+#  m.ia <- as.integer(idxes)
+#  d <- as.integer(c(n,m))
+#
+#  new('matrix.csr', ra=m.ra, ja=m.ja, ia=m.ia, dimension=d)
+#}
 
 # Assign the matrix as though it were dense
-assignMatrixDense <- function(source, row.ids, col.ids)
+# Currently unused
+.assignMatrixDenseNaive <- function(source, row.ids, col.ids)
 {
   require(futile.logger)
   num.cols <- length(col.ids)
@@ -233,20 +237,46 @@ assignMatrixDense <- function(source, row.ids, col.ids)
 }
 
 # Assign the matrix using the SLAM triplet construction
-assignMatrixTriplet <- function(source, row.ids, col.ids, ...)
-{
-  require(futile.logger)
-  require(slam)
+# This is blowing up the memory, so we aren't going to use this anymore
+#assignMatrixTriplet <- function(source, row.ids, col.ids, ...)
+#{
+#  require(futile.logger)
+#  require(slam)
+#
+#  row.idx <- 1:length(row.ids)
+#  names(row.idx) <- row.ids
+#  col.idx <- 1:length(col.ids)
+#  names(col.idx) <- col.ids
+# 
+#  i <- row.idx[source$row.id]
+#  j <- col.idx[source$col.id]
+#  v <- source$value
+#  simple_triplet_matrix(i,j,v, nrow=length(row.ids), ncol=length(col.ids), ...)
+#}
 
-  row.idx <- 1:length(row.ids)
-  names(row.idx) <- row.ids
-  col.idx <- 1:length(col.ids)
-  names(col.idx) <- col.ids
- 
-  i <- row.idx[source$row.id]
-  j <- col.idx[source$col.id]
-  v <- source$value
-  simple_triplet_matrix(i,j,v, nrow=length(row.ids), ncol=length(col.ids), ...)
+
+# raw - data.frame in triplet form where each row represents a triplet
+assignMatrixDense <- function(raw, row.ids, col.ids)
+{
+  #u.rows <- unique(raw[,1])
+  #rnames <- u.rows[order(u.rows)]
+  rows <- 1:length(row.ids)
+  names(rows) <- row.ids
+
+  #u.cols <- unique(raw[,2])
+  #rnames <- u.cols[order(u.cols)]
+  cols <- 1:length(col.ids)
+  names(cols) <- col.ids
+
+  out <- rep(0, length(rows) * length(cols))
+  for (x in 1:nrow(raw))
+  {
+    idx <- (cols[raw[x,2]]-1) * length(rows) + rows[raw[x,1]]
+    out[idx] <- raw[x,3]
+    NULL
+  }
+  matrix(out, ncol=length(cols), dimnames=list(row.ids, col.ids))
 }
+
 
 

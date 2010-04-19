@@ -1,7 +1,5 @@
 \name{read.matrix}
 \alias{read.matrix}
-\alias{assignMatrixSparse}
-\alias{assignMatrixTriplet}
 \alias{assignMatrixDense}
 \title{ Read a sparse matrix from a file and return a matrix }
 \description{
@@ -12,7 +10,7 @@
 \usage{
 read.matrix(file, header = FALSE, skip = 1, row.ids = NULL, col.ids = NULL, 
   colClasses = c('character','character','numeric'),
-  assign.fn = assignMatrixTriplet, filter.fn = NULL, ...)
+  assign.fn = assignMatrixDense, filter.fn = NULL, ...)
 }
 \arguments{
   \item{file}{ A file or connection to read from }
@@ -60,5 +58,12 @@ read.matrix(file, header = FALSE, skip = 1, row.ids = NULL, col.ids = NULL,
 }
 \author{ Brian Lee Yung Rowe }
 \examples{
+\dontrun{
+  # This file is in the sample-data directory under the root of the package
+  rows <- paste('row', 1:10000, sep='.')
+  cols <- paste('col', 1:10000, sep='.')
+  read.matrix('triplet.csv')
+}
+
 }
 \keyword{ array }
