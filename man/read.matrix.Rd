@@ -35,8 +35,9 @@ read.matrix(file, header = FALSE, skip = 1, row.ids = NULL, col.ids = NULL,
 \details{
   Matrices that have dimensions on the order of thousands can be slow to load 
   into R. 'read.matrix' provides an efficient implementation for reading sparse
-  matrices from a file or other connection. The underlying implementation
-  leverages optimized conversions in the slam and SparseM packages.
+  matrices in triplet form from a file or other connection. This version 
+  removes dependencies from other packages and shows a speed improvement over
+  those methods.
 
   The primary benefit of this function is that named rows and columns can be
   used as opposed to integer indexes, as compared to the \code{slam} package.
@@ -48,13 +49,12 @@ read.matrix(file, header = FALSE, skip = 1, row.ids = NULL, col.ids = NULL,
   file. The names are expected to be comma separated in a single line.
 
   Various methods can be used to construct a sparse matrix representation
-  that is used as the basis for constructing the dense matrix. The default
-  function, 'assignMatrixTriplet' uses the 'slam' package under the hood. The
-  'assignMatrixSparse' uses SparseM and a CSR representation, while 
-  'assignMatrixDense' is a naive brute force construction that is not optimized.
+  that is used as the basis for constructing the dense matrix. Currently only
+  the \code{assignMatrixDense} function is available, which works well for
+  matrices in triplet form.
 }
 \value{
-  A matrix object generated from sparse data.
+  A matrix object generated from sparse triplet data.
 }
 \author{ Brian Lee Yung Rowe }
 \examples{
