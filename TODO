@@ -1,0 +1,2 @@
+# Add dependency to fractalrock to get random time series
+# Add rmatrix for fractal time series (and provide interpolation to match scales)
