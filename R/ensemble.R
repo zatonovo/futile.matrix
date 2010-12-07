@@ -27,21 +27,21 @@
 # Trading Ideas
 #   http://ideas.repec.org/p/lei/ingber/03ai.html
 #   http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.7.1041
-guard(ct.matrix, is.matrix(m))
+ct.matrix %when% (is.matrix(m))
 ct.matrix <- function(m) Conj(t(m))
 
-guard(rcomp.fun, is.function(dist))
+rcomp.fun %when% (is.function(dist))
 rcomp.fun <- function(n, dist)
 {
-  sapply(1:n, function(x) complex(real=dist(1), imaginary=dist(1)))
+  complex(real=dist(n), imaginary=dist(n))
 }
 
-guard(rcomp.default, TRUE)
+rcomp.default %when% (TRUE)
 rcomp.default <- function(n) rcomp(n, rnorm)
 
 # Also known as a Gaussian Orthogonal Ensemble
-guard(rmatrix.hermitian, isa(WignerModel,model) & !model$real)
-ensure(rmatrix.hermitian, result == ct(result))
+rmatrix.hermitian %when% (model %isa% WignerModel & !model$real)
+rmatrix.hermitian %must% (result == ct(result))
 rmatrix.hermitian <- function(model)
 {
   n <- model$n
@@ -50,8 +50,8 @@ rmatrix.hermitian <- function(model)
 }
 
 # Also known as a Gaussian Unitary Ensemble
-guard(rmatrix.symmetric, isa(WignerModel,model) & model$real)
-ensure(rmatrix.symmetric, result == t(result))
+rmatrix.symmetric %when% (model %isa% WignerModel & model$real)
+rmatrix.symmetric %must% (result == t(result))
 rmatrix.symmetric <- function(model)
 {
   n <- model$n
@@ -59,7 +59,11 @@ rmatrix.symmetric <- function(model)
   (x + ct(x)) / sqrt(2 * n)
 }
 
-guard(rmatrix.cwishart, isa(WishartModel,model) & !model$real)
+# For definition of self-dual quaternion and matrix representation,
+# http://www.aimath.org/conferences/ntrmt/talks/Mezzadri2.pdf
+# http://tonic.physics.sunysb.edu/~verbaarschot/lecture/lecture2.ps
+
+rmatrix.cwishart %when% (model %isa% WishartModel & !model$real)
 rmatrix.cwishart <- function(model)
 {
   n <- model$n
@@ -68,7 +72,7 @@ rmatrix.cwishart <- function(model)
   (x %*% ct(x)) / m
 }
 
-guard(rmatrix.rwishart, isa(WishartModel,model) & model$real)
+rmatrix.rwishart %when% (model %isa% WishartModel & model$real)
 rmatrix.rwishart <- function(model)
 {
   n <- model$n
@@ -78,7 +82,7 @@ rmatrix.rwishart <- function(model)
 }
 
 
-guard(rmatrix.jacobi, isa(JacobiModel,model) & model$real)
+rmatrix.jacobi %when% (model %isa% JacobiModel & model$real)
 rmatrix.jacobi <- function(model)
 {
   n <- model$n
@@ -122,20 +126,20 @@ create.Ensemble <- function(T, rank, count, model)
 }
 
 
-guard(density_lim.wigner_def, isa(WignerModel,model))
+density_lim.wigner_def %when% (model %isa% WignerModel)
 density_lim.wigner_def <- function(model) density_lim(-2,2,100, model)
 
-guard(density_lim.wigner, isa(WignerModel,model))
+density_lim.wigner %when% (model %isa% WignerModel)
 density_lim.wigner <- function(min, max, steps, model)
 {
   x <- seq(min, max, length.out=steps)
   sqrt(4 - x^2) / (2 * pi)
 }
 
-guard(density_lim.wishart_def, isa(WishartModel,model))
+density_lim.wishart_def %when% (model %isa% WishartModel)
 density_lim.wishart_def <- function(model) density_lim(-3,3,100, model)
 
-guard(density_lim.wishart, isa(WishartModel,model))
+density_lim.wishart %when% (isa(WishartModel,model))
 density_lim.wishart <- function(min, max, steps, model)
 {
   x <- seq(min, max, length.out=steps)
@@ -146,10 +150,10 @@ density_lim.wishart <- function(min, max, steps, model)
   sqrt(ind * (x - b.neg) * (b.pos - x)) / (2*pi*x*c)
 }
 
-guard(density_lim.jacobi_def, isa(JacobiModel,model))
+density_lim.jacobi_def %when% (model %isa% JacobiModel)
 density_lim.jacobi_def <- function(model) density_lim(-1,1,100, model)
 
-guard(density_lim.jacobi, isa(JacobiModel,model))
+density_lim.jacobi %when% (model %isa% JacobiModel)
 density_lim.jacobi <- function(min, max, steps, model)
 {
   lg <- getLogger("futile.matrix")
@@ -172,7 +176,7 @@ density_lim.jacobi <- function(min, max, steps, model)
   sqrt(4*b2*b0 - b1^2) / (2*pi*b2)
 }
 
-guard(eigenvalues.matrix, is.matrix(m))
+eigenvalues.matrix %when% (is.matrix(m))
 eigenvalues.matrix <- function(m)
 {
   o <- eigen(m, only.values=TRUE)
@@ -182,7 +186,7 @@ eigenvalues.matrix <- function(m)
 # Example
 # en <- create(Ensemble, 10, 100, create(WignerModel))
 # hist(max_eigen(en), freq=FALSE)
-guard(max_eigen.en, isa(Ensemble,ensemble))
+max_eigen.en %when% (ensemble %isa% Ensemble)
 max_eigen.en <- function(ensemble)
 {
   es <- lapply(ensemble, eigen, only.values=TRUE)
@@ -192,9 +196,9 @@ max_eigen.en <- function(ensemble)
 
 
 # Convenience functions
-guard(hermitian.default, TRUE)
+hermitian.default %when% (TRUE)
 hermitian.default <- function(rank) rmatrix(rank, create(HermitianModel))
 
-guard(symmetric.default, TRUE)
+symmetric.default %when% (TRUE)
 symmetric.default <- function(rank) rmatrix(rank, create(RealSymmetricModel))
 
