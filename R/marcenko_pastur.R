@@ -1,3 +1,10 @@
+# Get the cutoff for the noise portion of the spectrum, which is essentially
+# lambda+. Depending ont the technique, there are different ways of achieving
+# this.
+cutoff <- function()
+{
+}
+
 # Calculate and plot the theoretical density distribution
 # e.values - The eigenvalues to plot the density against. This can really be any
 #   point on the xaxis.
