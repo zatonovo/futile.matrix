@@ -27,22 +27,24 @@
 # Trading Ideas
 #   http://ideas.repec.org/p/lei/ingber/03ai.html
 #   http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.7.1041
-ct.matrix %when% (is.matrix(m))
-ct.matrix <- function(m) Conj(t(m))
+ct %when% is.matrix(m)
+ct %as% function(m) Conj(t(m))
 
-rcomp.fun %when% (is.function(dist))
-rcomp.fun <- function(n, dist)
+
+rcomp %when% is.function(dist)
+rcomp %as% function(n, dist)
 {
   complex(real=dist(n), imaginary=dist(n))
 }
 
-rcomp.default %when% (TRUE)
-rcomp.default <- function(n) rcomp(n, rnorm)
+rcomp %when% (TRUE)
+rcomp %as% function(n) rcomp(n, rnorm)
 
 # Also known as a Gaussian Orthogonal Ensemble
-rmatrix.hermitian %when% (model %isa% WignerModel & !model$real)
-rmatrix.hermitian %must% (result == ct(result))
-rmatrix.hermitian <- function(model)
+rmatrix %when% (model %isa% WignerModel)
+rmatrix %also% !model$real
+rmatrix %must% (result == ct(result))
+rmatrix %as% function(model)
 {
   n <- model$n
   x <- matrix(rcomp(n^2), nrow=n) / 2^0.5
@@ -50,9 +52,10 @@ rmatrix.hermitian <- function(model)
 }
 
 # Also known as a Gaussian Unitary Ensemble
-rmatrix.symmetric %when% (model %isa% WignerModel & model$real)
-rmatrix.symmetric %must% (result == t(result))
-rmatrix.symmetric <- function(model)
+rmatrix %when% (model %isa% WignerModel)
+rmatrix %also% (model$real)
+rmatrix %must% (result == t(result))
+rmatrix %as% function(model)
 {
   n <- model$n
   x <- matrix(rnorm(n^2), nrow=n)
@@ -63,8 +66,8 @@ rmatrix.symmetric <- function(model)
 # http://www.aimath.org/conferences/ntrmt/talks/Mezzadri2.pdf
 # http://tonic.physics.sunysb.edu/~verbaarschot/lecture/lecture2.ps
 
-rmatrix.cwishart %when% (model %isa% WishartModel & !model$real)
-rmatrix.cwishart <- function(model)
+rmatrix %when% (model %isa% WishartModel & !model$real)
+rmatrix <- function(model)
 {
   n <- model$n
   m <- model$m
@@ -72,8 +75,8 @@ rmatrix.cwishart <- function(model)
   (x %*% ct(x)) / m
 }
 
-rmatrix.rwishart %when% (model %isa% WishartModel & model$real)
-rmatrix.rwishart <- function(model)
+rmatrix %when% (model %isa% WishartModel & model$real)
+rmatrix %as% function(model)
 {
   n <- model$n
   m <- model$m
@@ -82,8 +85,8 @@ rmatrix.rwishart <- function(model)
 }
 
 
-rmatrix.jacobi %when% (model %isa% JacobiModel & model$real)
-rmatrix.jacobi <- function(model)
+rmatrix %when% (model %isa% JacobiModel & model$real)
+rmatrix %as% function(model)
 {
   n <- model$n
   m1 <- model$m1
@@ -127,8 +130,8 @@ create.Ensemble <- function(T, rank, count, model)
 
 
 
-eigenvalues.matrix %when% (is.matrix(m))
-eigenvalues.matrix <- function(m)
+eigenvalues %when% (is.matrix(m))
+eigenvalues %as% function(m)
 {
   o <- eigen(m, only.values=TRUE)
   o$values
@@ -137,8 +140,8 @@ eigenvalues.matrix <- function(m)
 # Example
 # en <- create(Ensemble, 10, 100, create(WignerModel))
 # hist(max_eigen(en), freq=FALSE)
-max_eigen.en %when% (ensemble %isa% Ensemble)
-max_eigen.en <- function(ensemble)
+max_eigen %when% (ensemble %isa% Ensemble)
+max_eigen %as% function(ensemble)
 {
   es <- lapply(ensemble, eigen, only.values=TRUE)
   sapply(es, function(x) x$values[1])
@@ -147,9 +150,9 @@ max_eigen.en <- function(ensemble)
 
 
 # Convenience functions
-hermitian.default %when% (TRUE)
-hermitian.default <- function(rank) rmatrix(rank, create(HermitianModel))
+hermitian %when% (TRUE)
+hermitian %as% function(rank) rmatrix(rank, create(HermitianModel))
 
-symmetric.default %when% (TRUE)
-symmetric.default <- function(rank) rmatrix(rank, create(RealSymmetricModel))
+symmetric %when% (TRUE)
+symmetric %as% function(rank) rmatrix(rank, create(RealSymmetricModel))
 

@@ -29,6 +29,7 @@ mp.theory <- function(Q, sigma, e.values=NULL, steps=200)
 # Generate eigenvalues for theoretical Marcenko-Pastur distribution
 mp.lambdas <- function(Q,sigma, steps)
 {
+  logger <- getLogger("futile.matrix")
   l.min <- mp.eigen.min(Q,sigma)
   l.max <- mp.eigen.max(Q,sigma)
 

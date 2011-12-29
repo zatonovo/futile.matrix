@@ -1,18 +1,18 @@
-density_lim.wigner_def %when% (model %isa% WignerModel)
-density_lim.wigner_def <- function(model) density_lim(-2,2,100, model)
+density_lim %when% (model %isa% WignerModel)
+density_lim %as% function(model) density_lim(-2,2,100, model)
 
-density_lim.wigner %when% (model %isa% WignerModel)
-density_lim.wigner <- function(min, max, steps, model)
+density_lim %when% (model %isa% WignerModel)
+density_lim %as% function(min, max, steps, model)
 {
   x <- seq(min, max, length.out=steps)
   sqrt(4 - x^2) / (2 * pi)
 }
 
-density_lim.wishart_def %when% (model %isa% WishartModel)
-density_lim.wishart_def <- function(model) density_lim(-3,3,100, model)
+density_lim %when% (model %isa% WishartModel)
+density_lim %as% function(model) density_lim(-3,3,100, model)
 
-density_lim.wishart %when% (isa(WishartModel,model))
-density_lim.wishart <- function(min, max, steps, model)
+density_lim %when% (isa(WishartModel,model))
+density_lim %as% function(min, max, steps, model)
 {
   x <- seq(min, max, length.out=steps)
   c <- model$n / model$m
@@ -22,11 +22,11 @@ density_lim.wishart <- function(min, max, steps, model)
   sqrt(ind * (x - b.neg) * (b.pos - x)) / (2*pi*x*c)
 }
 
-density_lim.jacobi_def %when% (model %isa% JacobiModel)
-density_lim.jacobi_def <- function(model) density_lim(-1,1,100, model)
+density_lim %when% (model %isa% JacobiModel)
+density_lim %as% function(model) density_lim(-1,1,100, model)
 
-density_lim.jacobi %when% (model %isa% JacobiModel)
-density_lim.jacobi <- function(min, max, steps, model)
+density_lim %when% (model %isa% JacobiModel)
+density_lim %as% function(min, max, steps, model)
 {
   lg <- getLogger("futile.matrix")
   lg(WARN, "This function is incomplete")
