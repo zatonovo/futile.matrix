@@ -11,15 +11,15 @@ density_lim %as% function(min, max, steps, model)
 density_lim %when% (model %isa% WishartModel)
 density_lim %as% function(model) density_lim(-3,3,100, model)
 
-density_lim %when% (isa(WishartModel,model))
+density_lim %when% (model %isa% WishartModel)
 density_lim %as% function(min, max, steps, model)
 {
   x <- seq(min, max, length.out=steps)
-  c <- model$n / model$m
-  b.neg <- (1 - sqrt(c))^2
-  b.pos <- (1 + sqrt(c))^2
+  #c <- model$n / model$m
+  b.neg <- (1 - sqrt(model$Q))^2
+  b.pos <- (1 + sqrt(model$Q))^2
   ind <- ifelse(b.neg < x & x < b.pos, 1, 0)
-  sqrt(ind * (x - b.neg) * (b.pos - x)) / (2*pi*x*c)
+  sqrt(ind * (x - b.neg) * (b.pos - x)) / (2*pi*x*model$Q)
 }
 
 density_lim %when% (model %isa% JacobiModel)
@@ -47,4 +47,15 @@ density_lim %as% function(min, max, steps, model)
   #sqrt(ind * (x - b.neg) * (x + b.neg)) / (2 * pi * c0)
   sqrt(4*b2*b0 - b1^2) / (2*pi*b2)
 }
+
+# Get the bounds of the eigenvalues for the given model
+domain %when% (model %isa% WishartModel)
+domain %also% (model %hasa% sigma & model %hasa% Q)
+domain %as% function(model)
+{
+  domain.min <- model$sigma^2 * (1 - sqrt(1/model$Q))^2
+  domain.max <- model$sigma^2 * (1 + sqrt(1/model$Q))^2
+  c(domain.min, domain.max)
+}
+
 

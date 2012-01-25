@@ -31,14 +31,14 @@ ct %when% is.matrix(m)
 ct %as% function(m) Conj(t(m))
 
 
+# Generate a random complex number
 rcomp %when% is.function(dist)
 rcomp %as% function(n, dist)
 {
   complex(real=dist(n), imaginary=dist(n))
 }
 
-rcomp %when% (TRUE)
-rcomp %as% function(n) rcomp(n, rnorm)
+rcomp %default% function(n) rcomp(n, rnorm)
 
 # Also known as a Gaussian Orthogonal Ensemble
 rmatrix %when% (model %isa% WignerModel)
@@ -67,11 +67,12 @@ rmatrix %as% function(model)
 # http://tonic.physics.sunysb.edu/~verbaarschot/lecture/lecture2.ps
 
 rmatrix %when% (model %isa% WishartModel & !model$real)
-rmatrix <- function(model)
+rmatrix %as% function(model)
 {
   n <- model$n
   m <- model$m
-  x <- matrix(rcomp(n * m), nrow=n) / 2^0.5
+  dist.fn <- function(x) rnorm(x, sd=model$sd)
+  x <- matrix(rcomp(n * m, dist=dist.fn), nrow=n) / 2^0.5
   (x %*% ct(x)) / m
 }
 
@@ -80,7 +81,7 @@ rmatrix %as% function(model)
 {
   n <- model$n
   m <- model$m
-  x <- matrix(rnorm(n * m), nrow=n)
+  x <- matrix(rnorm(n * m, sd=model$sd), nrow=n)
   (x %*% t(x)) / m
 }
 
@@ -97,37 +98,43 @@ rmatrix %as% function(model)
   solve(x1 + x2) * x1
 }
 
-create.RandomMatrixModel <- function(T, real=TRUE) list(real=real)
+create.RandomMatrixModel <- function(T, real=TRUE, ...) list(real=real, ...)
 
+# Random square matrix. Eienvalues form semicircle
 create.WignerModel <- function(T, n, ...)
 {
-  o <- create(RandomMatrixModel, ...)
-  o$n <- n
-  o
+  create(RandomMatrixModel, n=n, ...)
 }
 
-create.WishartModel <- function(T, n, m, ...)
+# n - variables
+# m - observations
+# model <- create(WishartModel,100,500, sigma=1)
+# hist(eigenvalues(rmatrix(model)))
+create.WishartModel <- function(T, n, m, sd=1, ...)
 {
-  o <- create(RandomMatrixModel, ...)
-  o$n <- n
-  o$m <- m
-  o
+  create(RandomMatrixModel, n=n, m=m, Q=m/n, sd=sd, ...)
 }
 
 create.JacobiModel <- function(T, n, m1, m2, ...)
 {
-  o <- create(RandomMatrixModel, ...)
-  o$n <- n
-  o$m1 <- m1
-  o$m2 <- m2
-  o
+  create(RandomMatrixModel, n=n, m1=m1, m2=m2, ...)
 }
 
-create.Ensemble <- function(T, rank, count, model)
+create.Ensemble <- function(T, count, model)
 {
-  lapply(rep(rank,count), rmatrix, model)
+  out <- lapply(seq(count), function(junk) rmatrix(model))
+  attr(out, 'model') <- class(model)[1]
+  out
 }
 
+print.Ensemble <- function(x, ...)
+{
+  cat("\nClass:", attr(x,'model'))
+  cat("\nCount:", length(x))
+  cat("\nDimensions:", dim(x[[1]]))
+  cat("\n")
+  invisible(x)
+}
 
 
 eigenvalues %when% (is.matrix(m))
@@ -138,7 +145,7 @@ eigenvalues %as% function(m)
 }
 
 # Example
-# en <- create(Ensemble, 10, 100, create(WignerModel))
+# en <- create(Ensemble, 50, create(WignerModel, 200))
 # hist(max_eigen(en), freq=FALSE)
 max_eigen %when% (ensemble %isa% Ensemble)
 max_eigen %as% function(ensemble)
