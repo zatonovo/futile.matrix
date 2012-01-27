@@ -1,36 +1,25 @@
-density_lim %when% (model %isa% WignerModel)
-density_lim %as% function(model) density_lim(-2,2,100, model)
-
-density_lim %when% (model %isa% WignerModel)
-density_lim %as% function(min, max, steps, model)
+dmatrix %when% (model %isa% WignerModel)
+dmatrix %as% function(x, model)
 {
-  x <- seq(min, max, length.out=steps)
   sqrt(4 - x^2) / (2 * pi)
 }
 
-density_lim %when% (model %isa% WishartModel)
-density_lim %as% function(model) density_lim(-3,3,100, model)
-
-density_lim %when% (model %isa% WishartModel)
-density_lim %as% function(min, max, steps, model)
+dmatrix %when% (model %isa% WishartModel)
+dmatrix %as% function(x, model)
 {
-  x <- seq(min, max, length.out=steps)
-  #c <- model$n / model$m
-  b.neg <- (1 - sqrt(model$Q))^2
-  b.pos <- (1 + sqrt(model$Q))^2
+  var <- model$sd^2
+  bounds <- domain(model)
+  b.neg <- bounds[1]
+  b.pos <- bounds[2]
   ind <- ifelse(b.neg < x & x < b.pos, 1, 0)
-  sqrt(ind * (x - b.neg) * (b.pos - x)) / (2*pi*x*model$Q)
+  ind * model$Q / (2*pi*var*x) * sqrt((x - b.neg) * (b.pos - x))
 }
 
-density_lim %when% (model %isa% JacobiModel)
-density_lim %as% function(model) density_lim(-1,1,100, model)
-
-density_lim %when% (model %isa% JacobiModel)
-density_lim %as% function(min, max, steps, model)
+dmatrix %when% (model %isa% JacobiModel)
+dmatrix %as% function(x, model)
 {
   lg <- getLogger("futile.matrix")
   lg(WARN, "This function is incomplete")
-  x <- seq(min, max, length.out=steps)
   c1 <- model$n / model$m1
   c2 <- model$n / model$m2
   c0 <- c1*x + x^3*c1 - 2*c1*x^2 - c2*x^3 + c2*x^2
@@ -50,11 +39,11 @@ density_lim %as% function(min, max, steps, model)
 
 # Get the bounds of the eigenvalues for the given model
 domain %when% (model %isa% WishartModel)
-domain %also% (model %hasa% sigma & model %hasa% Q)
+domain %also% (model %hasa% sd & model %hasa% Q)
 domain %as% function(model)
 {
-  domain.min <- model$sigma^2 * (1 - sqrt(1/model$Q))^2
-  domain.max <- model$sigma^2 * (1 + sqrt(1/model$Q))^2
+  domain.min <- model$sd^2 * (1 - sqrt(1/model$Q))^2
+  domain.max <- model$sd^2 * (1 + sqrt(1/model$Q))^2
   c(domain.min, domain.max)
 }
 

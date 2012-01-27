@@ -15,9 +15,9 @@ test.fit.density_2 <- function()
   m <- rmatrix(model)
 
   fitter <- create(MaximumLikelihoodFit, hint=c(1,1))
-  ps <- fit.density(eigen(m), fitter)$par
+  ps <- fit.density(eigen(cov2cor(m)), fitter)$par
   checkEquals(4, ps[1], tolerance=0.1)
-  checkEquals(4, ps[2], tolerance=0.1)
+  checkEquals(1, ps[2], tolerance=0.1)
 }
 
 #test.fit.density_2 <- function()

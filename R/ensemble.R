@@ -108,7 +108,7 @@ create.WignerModel <- function(T, n, ...)
 
 # n - variables
 # m - observations
-# model <- create(WishartModel,100,500, sigma=1)
+# model <- create(WishartModel,100,500, sd=1)
 # hist(eigenvalues(rmatrix(model)))
 create.WishartModel <- function(T, n, m, sd=1, ...)
 {

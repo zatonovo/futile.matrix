@@ -10,11 +10,11 @@ cutoff %as% function(p)
   cutoff(p, es, create(RandomMatrixFilter))
 }
 
+# Provide a default implementation
 cutoff %when% (estimator %isa% RandomMatrixFilter)
 cutoff %also% (! estimator %hasa% fit.fn)
 cutoff %as% function(p, es, estimator)
 {
-  #fitter <- create(MarcenkoPasturFit, hint=c(4,1), kernel='e', adjust=0.2)
   fitter <- create(MaximumLikelihoodFit, hint=c(1,1))
   estimator$fit.fn <- function(es) fit.density(es, fitter)
   cutoff(p, es, estimator)
@@ -49,12 +49,9 @@ fit.density %as% function(lambda, fitter)
   x <- lambda$values
   fn <- function(theta)
   {
-    d <- dmp(x, svr=theta[1], var=theta[2])
-    sum(-log(d[d>0]))
-    # This works if it's a correlation matrix
-    #sum(-log(d))
+    # This only works if it's a correlation matrix
+    sum(-log(dmp(x, svr=theta[1], var=theta[2])))
   }
-  #optim(fitter$hint, fn)
-  nlm(fn, fitter$hint)
+  optim(fitter$hint, fn)
 }
 

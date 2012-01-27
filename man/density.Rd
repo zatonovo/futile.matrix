@@ -1,5 +1,5 @@
-\name{density_lim}
-\alias{density_lim}
+\name{dmatrix}
+\alias{dmatrix}
 \alias{domain}
 \alias{cutoff}
 \alias{fit.density}
@@ -8,7 +8,7 @@
 Supporting functions for analyzing the eigenvalue spectrum of random matrices
 }
 \usage{
-density_lim(...)
+dmatrix(...)
 domain(...)
 cutoff(...)
 fit.density(...)
@@ -25,10 +25,10 @@ spectrum.
 }
 \author{ Brian Lee Yung Rowe }
 \examples{
-  model <- create(WishartModel,20,50, sigma=1)
-  plot(density_lim(model))
-
-  domain(model)
+  model <- create(WishartModel,20,50, sd=1)
+  bounds <- domain(model)
+  x <- seq(bounds[1], bounds[2], length.out=50)
+  plot(x,dmatrix(x, model))
 
   cutoff(rmatrix(model))
 }
