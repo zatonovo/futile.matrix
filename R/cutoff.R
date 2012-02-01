@@ -46,11 +46,15 @@ cutoff %as% function(p, es, estimator)
 fit.density %when% (fitter %isa% MaximumLikelihoodFit)
 fit.density %as% function(lambda, fitter)
 {
+  logger <- getLogger('futile.matrix')
+  really.big <- 100000000000
   x <- lambda$values
   fn <- function(theta)
   {
-    # This only works if it's a correlation matrix
-    sum(-log(dmp(x, svr=theta[1], var=theta[2])))
+    s <- sum(-log(dmp(x, svr=theta[1], var=theta[2])))
+    s <- ifelse(s == Inf, really.big, s)
+    logger(DEBUG, sprintf("Likelihood value is %s", s))
+    s
   }
   optim(fitter$hint, fn)
 }
