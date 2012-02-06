@@ -5,7 +5,7 @@ Version: {version}
 Date: {date}
 Author: Brian Lee Yung Rowe
 Maintainer: Brian Lee Yung Rowe <r@nurometic.com>
-Depends: R (>= 2.8.0), futile.paradigm (>= 2.0.0), futile.logger (>= 1.2.0), futile.any (>= 1.2.0), RMTstat
+Depends: R (>= 2.8.0), futile.paradigm (>= 2.0.0), futile.logger (>= 1.2.0), futile.any (>= 1.2.0), RMTstat, RUnit
 Description: A collection of matrix manipulation functions including generation of matrix ensembles
 License: LGPL-3
 LazyLoad: yes
