@@ -27,11 +27,8 @@
 # Trading Ideas
 #   http://ideas.repec.org/p/lei/ingber/03ai.html
 #   http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.7.1041
-ct(m) %when% {
-  is.matrix(m)
-} %as% {
-  Conj(t(m))
-}
+ct(m) %::% matrix : matrix
+ct(m) %as% { Conj(t(m)) }
 
 # Generate a random complex number
 rcomp(n, dist) %when% {
@@ -43,8 +40,8 @@ rcomp(n, dist) %when% {
 rcomp(n, ...) %as% rcomp(n, rnorm)
 
 # Also known as a Gaussian Orthogonal Ensemble
+rmatrix(model) %::% WignerModel : matrix
 rmatrix(model) %when% {
-  model %isa% WignerModel
   !model$real
   # result == ct(result)
 } %as% {
@@ -54,8 +51,8 @@ rmatrix(model) %when% {
 }
 
 # Also known as a Gaussian Unitary Ensemble
+rmatrix(model) %::% WignerModel : matrix
 rmatrix(model) %when% {
-  model %isa% WignerModel
   model$real
   # result == t(result)
 } %as% {
@@ -68,8 +65,8 @@ rmatrix(model) %when% {
 # http://www.aimath.org/conferences/ntrmt/talks/Mezzadri2.pdf
 # http://tonic.physics.sunysb.edu/~verbaarschot/lecture/lecture2.ps
 
+rmatrix(model) %::% WishartModel : matrix
 rmatrix(model) %when% {
-  model %isa% WishartModel
   !model$real
 } %as% {
   n <- model$n
@@ -79,8 +76,8 @@ rmatrix(model) %when% {
   (x %*% ct(x)) / m
 }
 
+rmatrix(model) %::% WishartModel : matrix
 rmatrix(model) %when% {
-  model %isa% WishartModel
   model$real
 } %as% {
   n <- model$n
@@ -90,42 +87,43 @@ rmatrix(model) %when% {
 }
 
 
+rmatrix(model) %::% JacobiModel : matrix
 rmatrix(model) %when% {
-  model %isa% JacobiModel
   model$real
 } %as% {
   n <- model$n
   m1 <- model$m1
   m2 <- model$m2
 
-  x1 <- rmatrix(create(WishartModel, n,m1, real=model$real))
-  x2 <- rmatrix(create(WishartModel, n,m2, real=model$real))
+  x1 <- rmatrix(WishartModel(n,m1, real=model$real))
+  x2 <- rmatrix(WishartModel(n,m2, real=model$real))
   solve(x1 + x2) * x1
 }
 
-RandomMatrixModel(T, real=TRUE, ...) %as% list(real=real, ...)
+
+RandomMatrixModel(real=TRUE, ...) %as% list(real=real, ...)
 
 # Random square matrix. Eienvalues form semicircle
-WignerModel(T, n, ...) %as%
+WignerModel(n, ...) %as%
 {
   RandomMatrixModel(n=n, ...)
 }
 
 # n - variables
 # m - observations
-# model <- create(WishartModel,100,500, sd=1)
+# model <- WishartModel(100,500, sd=1)
 # hist(eigenvalues(rmatrix(model)))
-WishartModel(T, n, m, sd=1, ...) %as%
+WishartModel(n, m, sd=1, ...) %as%
 {
   RandomMatrixModel(n=n, m=m, Q=m/n, sd=sd, ...)
 }
 
-JacobiModel(T, n, m1, m2, ...) %as%
+JacobiModel(n, m1, m2, ...) %as%
 {
   RandomMatrixModel(n=n, m1=m1, m2=m2, ...)
 }
 
-Ensemble(T, count, model) %as%
+Ensemble(count, model) %as%
 {
   out <- lapply(seq(count), function(junk) rmatrix(model))
   attr(out, 'model') <- class(model)[1]
@@ -150,7 +148,7 @@ eigenvalues(m) %as% {
 }
 
 # Example
-# en <- create(Ensemble, 50, create(WignerModel, 200))
+# en <- Ensemble(50, WignerModel(200))
 # hist(max_eigen(en), freq=FALSE)
 max_eigen(ensemble) %::% Ensemble : numeric
 max_eigen(ensemble) %as% {
@@ -161,7 +159,7 @@ max_eigen(ensemble) %as% {
 
 
 # Convenience functions
-hermitian(rank) %as% rmatrix(rank, create(HermitianModel))
+hermitian(rank) %as% rmatrix(rank, HermitianModel())
 
-symmetric(rank) %as% rmatrix(rank, create(RealSymmetricModel))
+symmetric(rank) %as% rmatrix(rank, RealSymmetricModel())
 

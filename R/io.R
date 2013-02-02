@@ -1,14 +1,3 @@
-.onLoad <- function(libname, pkgname)
-{
-  .resetLogger()
-}
-
-.resetLogger <- function()
-{
-  require(futile.logger)
-  .log <<- getLogger("futile.matrix")
-}
-
 # TODO: remove any ids in columns/rows that don't appear in the triplet form as
 # this breaks the CSR construction algorithm.
 # Alternate test
@@ -28,7 +17,7 @@
 .processHeader <- function(file, row.idx, col.idx)
 {
   zz <- .fileConnection(file)
-  .log(DEBUG,'Loading ids')
+  flog.debug('Loading ids')
 
   count <- 0
   if (! is.null(row.idx)) count <- count + 1
@@ -74,31 +63,29 @@ read.matrix <- function(file, header=FALSE, skip=1,
   colClasses=c('character','character','numeric'), 
   assign.fn=assignMatrixDense, filter.fn=NULL, ...)
 {
-  #logger <- getLogger("futile.matrix")
-
   if (header)
   {
     as <- .processHeader(file, row.ids, col.ids)
     if (! is.null(as)) attach(as)
   }
 
-  .log(DEBUG,sprintf('Reading triplet representation of %s', file))
+  flog.debug('Reading triplet representation of %s', file)
   zz <- .fileConnection(file)
   pts <- read.csv(zz, colClasses=colClasses, skip=skip, header=FALSE)
   colnames(pts) <- c('row.id','col.id','value')
-  .log(DEBUG,sprintf('Got raw %s: [%s,%s]', file, nrow(pts), ncol(pts)))
+  flog.debug('Got raw %s: [%s,%s]', file, nrow(pts), ncol(pts))
 
   if (is.null(row.ids)) row.ids <- unique(pts[,1])
   if (is.null(col.ids)) col.ids <- unique(pts[,2])
 
   if (!is.null(filter.fn))
   {
-    .log(INFO,"Applying filter to raw data")
+    flog.info("Applying filter to raw data")
     pts <- filter.fn(pts)
     row.ids <- filter.fn(row.ids)
-    .log(DEBUG,sprintf('Filtered %s: [%s,%s]', file, nrow(pts), ncol(pts)))
+    flog.debug('Filtered %s: [%s,%s]', file, nrow(pts), ncol(pts))
   }
-  #tryCatch(close(zz), finally=.log(DEBUG,"Closed file"))
+  #tryCatch(close(zz), finally=flog.debug("Closed file"))
 
   # This guarantees that the computed ias are monotonically increasing
   row.ids <- row.ids[order(row.ids)]
@@ -107,13 +94,13 @@ read.matrix <- function(file, header=FALSE, skip=1,
 
   #m <- assignMatrixSparse(pts, row.ids, col.ids, ...)
   m <- assign.fn(pts, row.ids, col.ids, ...)
-  .log(DEBUG,sprintf('Assigned values to %s', file))
-  .log(DEBUG,'Converting to dense matrix')
+  flog.debug('Assigned values to %s', file)
+  flog.debug('Converting to dense matrix')
   m <- as.matrix(m)
-  .log(DEBUG,'Attaching names')
+  flog.debug('Attaching names')
   colnames(m) <- toupper(col.ids)
   rownames(m) <- toupper(row.ids)
-  .log(DEBUG,'Done with matrix')
+  flog.debug('Done with matrix')
   m
 }
 
@@ -125,7 +112,6 @@ read.matrix <- function(file, header=FALSE, skip=1,
 #assignMatrixSparse <- function(source, row.ids, col.ids,
 #  row.block=500000, col.block=500000)
 #{
-#  require(futile.logger)
 #  require(SparseM)
 #  msg.col <- "Calculating column indexes for %s elements (map size: %s)"
 #  msg.row <- "Calculating row indexes for %s elements (map size: %s)"
@@ -135,7 +121,7 @@ read.matrix <- function(file, header=FALSE, skip=1,
 #  # This is necessary to conform to CSR construction rules.
 #  row.ids <- row.ids[row.ids %in% source$row.id]
 #  col.ids <- col.ids[col.ids %in% source$col.id]
-#  .log(DEBUG,sprintf("Output matrix will be [%s,%s]", length(row.ids),length(col.ids)))
+#  flog.debug("Output matrix will be [%s,%s]", length(row.ids),length(col.ids))
 #
 #  n <- length(row.ids)
 #  m <- length(col.ids)
@@ -148,11 +134,11 @@ read.matrix <- function(file, header=FALSE, skip=1,
 #  {
 #    inf <- block.size * (idx - 1) + 1
 #    sup <- ifelse(idx == num.pieces, length(source), idx * block.size)
-#    .log(DEBUG,sprintf(msg.lookup, idx, num.pieces, inf, sup))
+#    flog.debug(msg.lookup, idx, num.pieces, inf, sup)
 #    map[source[inf:sup]]
 #  }
 #
-#  .log(DEBUG,sprintf(msg.col, nrow(source), m))
+#  flog.debug(msg.col, nrow(source), m)
 #  col.map <- as.integer(1:length(col.ids))
 #  names(col.map) <- col.ids
 #  col.idx.list <- apply(array(1:num.pieces), 1, lookup, col.map, source$col.id)
@@ -162,7 +148,7 @@ read.matrix <- function(file, header=FALSE, skip=1,
 #  # (s)ids. The ordering needs to be consistent with the row.idx
 #  col.idx <- do.call(c, col.idx.list)
 #
-#  .log(DEBUG,sprintf(msg.row, nrow(source), n))
+#  flog.debug(msg.row, nrow(source), n)
 #  block.size <- row.block
 #  num.pieces <- nrow(source) %/% block.size + 1
 #  row.map <- as.integer(1:length(row.ids))
@@ -174,7 +160,7 @@ read.matrix <- function(file, header=FALSE, skip=1,
 #  # The ordering needs to be consistent with the row.idx
 #  row.idx <- do.call(c, row.idx.list)
 #
-#  .log(DEBUG,sprintf("Calculating ias", n))
+#  flog.debug("Calculating ias", n)
 #  idxes <- rep(0, n+1)
 #  idxes[1] <- 1
 #  idx <- 0
@@ -188,20 +174,20 @@ read.matrix <- function(file, header=FALSE, skip=1,
 #    idx <- idx + 1
 #    if (is.na(r))
 #    {
-#      .log(WARN,sprintf("Skipping bad row match at index %s", idx))
+#      flog.warn("Skipping bad row match at index %s", idx)
 #      next
 #    }
 #    if (r == prev) next
 #    if (idx <= 0)
 #    {
-#      .log(WARN,sprintf("Bad index value encountered: %s", idx))
+#      flog.warn("Bad index value encountered: %s", idx)
 #    }
 #    idxes[r] <- idx
 #    prev <- r
-#  }, finally=.log(DEBUG,sprintf("prev=%s, r=%s",prev,r)))
+#  }, finally=flog.debug("prev=%s, r=%s",prev,r))
 #  idxes[length(idxes)] <- nrow(source) + 1
 #
-#  .log(DEBUG,sprintf("Creating sparse matrix with dimensions [%s,%s]", n,m))
+#  flog.debug("Creating sparse matrix with dimensions [%s,%s]", n,m)
 #  m.ra <- source$value
 #  m.ja <- as.integer(col.idx)
 #  m.ia <- as.integer(idxes)
@@ -214,7 +200,6 @@ read.matrix <- function(file, header=FALSE, skip=1,
 # Currently unused
 .assignMatrixDenseNaive <- function(source, row.ids, col.ids)
 {
-  require(futile.logger)
   num.cols <- length(col.ids)
   source.rows <- unique(source$row.id)
 
@@ -227,9 +212,9 @@ read.matrix <- function(file, header=FALSE, skip=1,
     row[col.ids %in% items$col.id] <- items$value
     row
   }
-  .log(DEBUG,'Creating raw rows for matrix')
+  flog.debug('Creating raw rows for matrix')
   all.rows <- lapply(row.ids, fn, source)
-  .log(DEBUG,sprintf('Binding %s rows to create matrix', length(all.rows)))
+  flog.debug('Binding %s rows to create matrix', length(all.rows))
   m <- matrix(do.call(rbind, all.rows), nrow=length(all.rows), byrow=TRUE)
   rownames(m) <- row.ids
   colnames(m) <- col.ids
@@ -240,7 +225,6 @@ read.matrix <- function(file, header=FALSE, skip=1,
 # This is blowing up the memory, so we aren't going to use this anymore
 #assignMatrixTriplet <- function(source, row.ids, col.ids, ...)
 #{
-#  require(futile.logger)
 #  require(slam)
 #
 #  row.idx <- 1:length(row.ids)

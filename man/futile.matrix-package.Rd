@@ -38,7 +38,7 @@ LazyLoad: \tab yes\cr
   magnitude larger.
 }
 \author{
-Brian Lee Yung Rowe <r@nurometic.com>
+Brian Lee Yung Rowe <r@zatonovo.com>
 }
 \keyword{ package }
 \keyword{ attribute }

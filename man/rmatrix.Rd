@@ -25,6 +25,7 @@ max_eigen(...)
 }
 \details{
 rmatrix(model)
+
 'rmatrix' generates a random matrix. The model argument must be of type
 RandomMatrixModel. Numerous sub-types (e.g. WignerModel, WishartModel) are
 supported generating the appropriate type of random matrix.
@@ -46,10 +47,10 @@ of random matrices. Not fully implemented.
 }
 \author{ Brian Lee Yung Rowe }
 \examples{
-  model <- create(WignerModel, 10)
+  model <- WignerModel(10)
   m <- rmatrix(model)
 
-  e <- create(Ensemble, 20, model)
+  e <- Ensemble(20, model)
   hist(max_eigen(e), freq=FALSE)
 }
 \keyword{ array }
