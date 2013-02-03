@@ -65,8 +65,10 @@ read.matrix <- function(file, header=FALSE, skip=1,
 {
   if (header)
   {
-    as <- .processHeader(file, row.ids, col.ids)
-    if (! is.null(as)) attach(as)
+    h <- .processHeader(file, row.ids, col.ids)
+    row.ids <- h$row.ids
+    col.ids <- h$col.ids
+    skip <- h$skip
   }
 
   flog.debug('Reading triplet representation of %s', file)

@@ -59,11 +59,12 @@ read.matrix(file, header = FALSE, skip = 1, row.ids = NULL, col.ids = NULL,
 \author{ Brian Lee Yung Rowe }
 \examples{
 \dontrun{
-  # This file is in the sample-data directory under the root of the package
+  path <- system.file('sample-data/triplet.csv', package='futile.matrix')
+  m <- read.matrix(path)
+
   rows <- paste('row', 1:10000, sep='.')
   cols <- paste('col', 1:10000, sep='.')
-  read.matrix('triplet.csv')
+  n <- read.matrix(path, row.ids=rows, col.ids=cols)
 }
-
 }
 \keyword{ array }
