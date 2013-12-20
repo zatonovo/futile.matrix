@@ -14,8 +14,8 @@
 \tabular{ll}{
 Package: \tab futile.matrix\cr
 Type: \tab Package\cr
-Version: \tab {version}\cr
-Date: \tab {date}\cr
+Version: \tab 1.2.0\cr
+Date: \tab 2013-08-03\cr
 License: \tab LGPL-3\cr
 LazyLoad: \tab yes\cr
 }

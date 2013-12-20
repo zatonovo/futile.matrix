@@ -27,18 +27,76 @@
 # Trading Ideas
 #   http://ideas.repec.org/p/lei/ingber/03ai.html
 #   http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.7.1041
+
+#' Perform the conjugate transpose of a matrix
+#'
+#' @section Usage:
+#' ct(m) \%::\% matrix : matrix
+#'
+#' ct(m)
+#' 
+#' @section Details:
+#' This is a convenience function to compute the conjugate transpose. For
+#' real-valued matrices, ct(m) == t(m).
+#'
+#' @name ct
+#' @param m A matrix
+#' @return THe conjugate transpose of the original matrix
+#' @examples
+#' x <- rcomp(10)
+#' ct(x)
 ct(m) %::% matrix : matrix
 ct(m) %as% { Conj(t(m)) }
 
-# Generate a random complex number
-rcomp(n, dist) %when% {
-  is.function(dist)
-} %as% {
+
+#' Generation of random complex numbers
+#'
+#' Generate random complex numbers using the specified distribution.
+#' By default \code{rnorm} is used.
+#'
+#' @section Usage:
+#' rcomp(n, dist) %::% numeric : Function : complex
+#' 
+#' rcomp(n, dist=rnorm)
+#'
+#' @section Details:
+#' This function is used primarily to generate random matrices.
+#'
+#' @name rcomp
+#' @param n Length of the output vector
+#' @param dist The distribution for the random number genertor
+#' @return A vector of random numbers
+#' @examples
+#' rcomp(10)
+#' rcomp(10, runif)
+rcomp(n, dist) %::% numeric : Function : complex
+rcomp(n, dist=rnorm) %as% {
   complex(real=dist(n), imaginary=dist(n))
 }
 
-rcomp(n, ...) %as% rcomp(n, rnorm)
-
+#' Generation of random matrices
+#'
+#' Generate various types of random matrices
+#'
+#' @section Usage:
+#' rmatrix(model) %::% WignerModel : matrix
+#'
+#' rmatrix(model) %::% WishartModel : matrix
+#'
+#' rmatrix(model) %::% JacobiModel : matrix
+#'
+#' rmatrix(model)
+#'
+#' @section Details:
+#' Gaussian Orthogonal Ensemble
+#' Gaussian Unitary Ensemble
+#'
+#' @name rmatrix
+#' @param model The matrix model to use, which includes the size of
+#' the matrix. The model argument must be of type RandomMatrixModel. 
+#' Numerous sub-types (e.g. WignerModel, WishartModel) are
+#' supported generating the appropriate type of random matrix.
+#'
 # Also known as a Gaussian Orthogonal Ensemble
 rmatrix(model) %::% WignerModel : matrix
 rmatrix(model) %when% {
@@ -126,7 +184,7 @@ JacobiModel(n, m1, m2, ...) %as%
 Ensemble(count, model) %as%
 {
   out <- lapply(seq(count), function(junk) rmatrix(model))
-  attr(out, 'model') <- class(model)[1]
+  out@model <- class(model)[1]
   out
 }
 
@@ -159,7 +217,7 @@ max_eigen(ensemble) %as% {
 
 
 # Convenience functions
-hermitian(rank) %as% rmatrix(rank, HermitianModel())
+hermitian(n) %as% rmatrix(WignerModel(n=n, real=FALSE))
 
-symmetric(rank) %as% rmatrix(rank, RealSymmetricModel())
+symmetric(n) %as% rmatrix(WignerModel(n=n, real=TRUE))
 

@@ -1,12 +1,12 @@
 Package: futile.matrix
 Type: Package
-Title: Futile matrix utilities
-Version: {version}
-Date: {date}
+Title: Random matrix generation and manipulation
+Version: 1.2.1
+Date: 2013-08-03
 Author: Brian Lee Yung Rowe
 Maintainer: Brian Lee Yung Rowe <r@zatonovo.com>
-Depends: futile.logger (>= 1.3.0), futile.any (>= 1.3.0), RMTstat
+Depends: lambda.r, lambda.tools, futile.logger (>= 1.3.0), RMTstat
 Suggests: RUnit
-Description: A collection of matrix manipulation functions including generation of matrix ensembles
+Description: A collection of functions for manipulating matrices and also generating ensembles of random matrices
 License: LGPL-3
 LazyLoad: yes

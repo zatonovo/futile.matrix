@@ -1,10 +1,12 @@
 # Get the cutoff for the noise portion of the spectrum, which is essentially
-# lambda+. Depending ont the technique, there are different ways of achieving
+# lambda+. Depending on the technique, there are different ways of achieving
 # this.
 RandomMatrixFilter(...) %as% list(...)
 MaximumLikelihoodFit(...) %as% list(...)
 
-# Assume p is a random matrix
+#' @param p A random matrix
+#' @examples
+#' cutoff(rmatrix())
 cutoff(p) %::% matrix : numeric
 cutoff(p) %as% {
   es <- eigen(p, symmetric=TRUE)
