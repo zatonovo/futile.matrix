@@ -108,7 +108,6 @@ rmatrix(model) %when% {
   (x + ct(x)) / sqrt(2 * n)
 }
 
-# Also known as a Gaussian Unitary Ensemble
 rmatrix(model) %::% WignerModel : matrix
 rmatrix(model) %when% {
   model$real
