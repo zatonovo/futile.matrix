@@ -65,7 +65,7 @@ rcomp(n, dist=rnorm) %as% {
 #' and also to compute other properties of the matrix.
 #'
 #' @name rmatrix
-#' @aliases hermitian max_eigen eigenvalues
+#' @aliases symmetric hermitian max_eigen eigenvalues
 #' @param model The matrix model to use, which includes the size of
 #' the matrix. The model argument must be of type RandomMatrixModel. 
 #' Numerous sub-types (e.g. WignerModel, WishartModel) are
@@ -168,7 +168,7 @@ rmatrix(model) %when% {
 #' @param count Number of matrices in the ensemble
 #' @param model The random matrix model to use
 #' @return Returns a model type. Use with \code{\link{rmatrix}} or 
-#' \code{\link{ensemble}} to generate actual matrices.
+#' \code{\link{Ensemble}} to generate actual matrices.
 #' @examples
 #' model <- WignerModel(10)
 #' m <- rmatrix(model)

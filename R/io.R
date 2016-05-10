@@ -82,7 +82,7 @@
 #'
 #' Various methods can be used to construct a sparse matrix representation
 #' that is used as the basis for constructing the dense matrix. Currently only
-#' the \code{assignMatrixDense} function is available, which works well for
+#' the \code{assign_matrix_dense} function is available, which works well for
 #' matrices in triplet form.
 #'
 #' 
@@ -119,7 +119,7 @@
 read.matrix <- function(file, header=FALSE, skip=1, 
   row.ids=NULL, col.ids=NULL,
   colClasses=c('character','character','numeric'), 
-  assign.fn=assignMatrixDense, filter.fn=NULL, ...)
+  assign.fn=assign_matrix_dense, filter.fn=NULL, ...)
 {
   if (header)
   {
@@ -299,8 +299,15 @@ read.matrix <- function(file, header=FALSE, skip=1,
 #}
 
 
-# raw - data.frame in triplet form where each row represents a triplet
-assignMatrixDense <- function(raw, row.ids, col.ids)
+#' Create a matrix from a triplet representation
+#'
+#' A somewhat optimized constructor of dense matrices from triplets
+#'
+#' @param raw data.frame in triplet form where each row represents a triplet
+#' @param row.ids The row ids
+#' @param col.ids The col ids
+#' @return A matrix
+assign_matrix_dense <- function(raw, row.ids, col.ids)
 {
   #u.rows <- unique(raw[,1])
   #rnames <- u.rows[order(u.rows)]
