@@ -17,9 +17,8 @@ also not designed for external use.
 }
 \examples{
 \dontrun{
-model <- WishartModel(50, 200)
-mat <- rmatrix(model)
-es <- eigen(mat)
+m <- rmatrix(WishartModel(50, 200))
+es <- eigen(m)
 fit.density(es, MaximumLikelihoodFit(hint=c(1,1)))
 }
 }
