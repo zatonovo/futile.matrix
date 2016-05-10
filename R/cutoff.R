@@ -58,7 +58,7 @@ cutoff(p, es, estimator) %as% {
 #' @param fitter A fit function
 #' @return Optimal parameters
 #' @examples
-#' \dontrun {
+#' \dontrun{
 #' model <- WishartModel(50, 200)
 #' mat <- rmatrix(model)
 #' es <- eigen(mat)

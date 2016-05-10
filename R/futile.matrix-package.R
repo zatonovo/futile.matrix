@@ -39,6 +39,7 @@
 #' @keywords  package attribute logic
 #' @examples
 #' # Generate a random ensemble
+#' m <- rmatrix(WishartModel(100,400))
 #' 
 #' # Select sub-matrices
 #' library(datasets)
