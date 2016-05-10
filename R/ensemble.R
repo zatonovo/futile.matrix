@@ -230,7 +230,7 @@ Ensemble(count, model) %as%
 #' @param ... Reserved for later
 #' @return Used for side-effects
 #' @seealso \code{\link{Ensemble}}
-#' @S3method print Ensemble
+#' @export print Ensemble
 print.Ensemble <- function(x, ...)
 {
   cat("\nClass:", attr(x,'model'))

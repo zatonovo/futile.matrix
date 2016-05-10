@@ -59,12 +59,11 @@ cutoff(p, es, estimator) %as% {
 #' @return Optimal parameters
 #' @examples
 #' \dontrun{
-#' model <- WishartModel(50, 200)
-#' mat <- rmatrix(model)
-#' es <- eigen(mat)
+#' m <- rmatrix(WishartModel(50, 200))
+#' es <- eigen(m)
 #' fit.density(es, MaximumLikelihoodFit(hint=c(1,1)))
 #' }
-fit.density(lambda, fitter) %::% list : MaximumLikelihoodFit : list
+fit.density(lambda, fitter) %::% eigen : MaximumLikelihoodFit : list
 fit.density(lambda, fitter) %as% {
   really.big <- 100000000000
   x <- lambda$values
