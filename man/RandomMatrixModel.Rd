@@ -9,7 +9,6 @@
 \alias{WignerModel}
 \alias{WishartMatrix}
 \alias{WishartModel}
-\alias{print.Ensemble}
 \title{Type constructors for random matrices and ensembles of random matrices}
 \arguments{
 \item{real}{Whether the matrix has real components or not}

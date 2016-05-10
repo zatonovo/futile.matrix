@@ -78,3 +78,10 @@ fit.density(lambda, fitter) %as% {
   optim(fitter$hint, fn)
 }
 
+fit.density(lambda, fitter) %::% list : MaximumLikelihoodFit : list
+fit.density(lambda, fitter) %as% {
+  # For backwards compatibility
+  class(lambda) <- 'eigen'
+  fit.density(lambda, fitter)
+}
+

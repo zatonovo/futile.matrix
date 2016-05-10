@@ -23,6 +23,6 @@ cutoff(p) %::% matrix : numeric
 cutoff(p, es, estimator) %::% matrix : list : RandomMatrixFilter : numeric
 }
 \examples{
-cutoff(rmatrix(WignerModel(100))
+cutoff(rmatrix(WignerModel(100)))
 }
 
