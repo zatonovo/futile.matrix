@@ -9,13 +9,13 @@
 #' 
 #' @section Details:
 #' This is a convenience function to compute the conjugate transpose. For
-#' real-valued matrices, ct(m) == t(m).
+#' real-valued matrices, ct(m) = t(m).
 #'
 #' @name ct
 #' @param m A matrix
 #' @return THe conjugate transpose of the original matrix
 #' @examples
-#' x <- rcomp(10)
+#' x <- matrix(rcomp(16), nrow=4)
 #' ct(x)
 ct(m) %::% matrix : matrix
 ct(m) %as% { Conj(t(m)) }

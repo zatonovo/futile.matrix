@@ -30,7 +30,7 @@
 }
 \value{
 Returns a model type. Use with \code{\link{rmatrix}} or 
-\code{\link{ensemble}} to generate actual matrices.
+\code{\link{Ensemble}} to generate actual matrices.
 }
 \description{
 Provides type constructors for creating random matrices. Various

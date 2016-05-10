@@ -6,7 +6,7 @@
 \usage{
 read.matrix(file, header = FALSE, skip = 1, row.ids = NULL,
   col.ids = NULL, colClasses = c("character", "character", "numeric"),
-  assign.fn = assignMatrixDense, filter.fn = NULL, ...)
+  assign.fn = assign_matrix_dense, filter.fn = NULL, ...)
 }
 \arguments{
 \item{file}{A file or connection to read from}
@@ -62,7 +62,7 @@ file. The names are expected to be comma separated in a single line.
 
 Various methods can be used to construct a sparse matrix representation
 that is used as the basis for constructing the dense matrix. Currently only
-the \code{assignMatrixDense} function is available, which works well for
+the \code{assign_matrix_dense} function is available, which works well for
 matrices in triplet form.
 }
 \examples{

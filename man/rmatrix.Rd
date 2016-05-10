@@ -5,6 +5,7 @@
 \alias{hermitian}
 \alias{max_eigen}
 \alias{rmatrix}
+\alias{symmetric}
 \title{Generation of random matrices}
 \arguments{
 \item{model}{The matrix model to use, which includes the size of
