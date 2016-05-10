@@ -16,7 +16,7 @@ This only works for fitting the Marcenko-Pastur distribution. It's
 also not designed for external use.
 }
 \examples{
-\dontrun {
+\dontrun{
 model <- WishartModel(50, 200)
 mat <- rmatrix(model)
 es <- eigen(mat)
