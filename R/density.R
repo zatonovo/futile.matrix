@@ -1,3 +1,21 @@
+#' Get the density for the given random matrix model
+#'
+#' This is the analog to dnorm except for a random matrix
+#'
+#' @section Usage:
+#' dmatrix(x, model) %::% a : WignerModel : a
+#'
+#' dmatrix(x, model) %::% a : WishartModel : a
+#'
+#' dmatrix(x, model) %::% a : JacobiModel : a
+#'
+#' @name dmatrix
+#' @param x A numeric vector
+#' @param model The random matrix model
+#' @return A vector of corresponding densities
+#' @examples
+#' m <- WignerModel(100)
+#' dmatrix(seq(-1,1,by=0.02), m)
 dmatrix(x, model) %::% a : WignerModel : a
 dmatrix(x, model) %as% {
   sqrt(4 - x^2) / (2 * pi)
@@ -9,15 +27,15 @@ dmatrix(x, model) %as% {
   bounds <- domain(model)
   b.neg <- bounds[1]
   b.pos <- bounds[2]
-  ind <- ifelse(b.neg < x & x < b.pos, 1, 0)
-  ind * model$Q / (2*pi*var*x) * sqrt((x - b.neg) * (b.pos - x))
+  ifelse(b.neg >= x | x >= b.pos, 0, 
+    model$Q / (2*pi*var*x) * sqrt((x - b.neg) * (b.pos - x)))
 }
 
 dmatrix(x, model) %::% a : JacobiModel : a
 dmatrix(x, model) %as% {
   flog.warn("This function is incomplete")
-  c1 <- model$n / model$m1
-  c2 <- model$n / model$m2
+  c1 <- model@n / model@m1
+  c2 <- model@n / model@m2
   c0 <- c1*x + x^3*c1 - 2*c1*x^2 - c2*x^3 + c2*x^2
 
   b0 <- c1*x - c2*x - c1 + 2
@@ -33,7 +51,16 @@ dmatrix(x, model) %as% {
   sqrt(4*b2*b0 - b1^2) / (2*pi*b2)
 }
 
-# Get the bounds of the eigenvalues for the given model
+#' Get the bounds of the eigenvalues for the given model
+#'
+#' Currently only supports Wishart matrices
+#'
+#' @section Usage:
+#' domain(model) %::% WishartModel : numeric
+#'
+#' @name domain
+#' @param model The random matrix model
+#' @return A vector containing the lower and upper bounds
 domain(model) %::% WishartModel : numeric
 domain(model) %when% {
   model %hasa% sd

@@ -58,6 +58,64 @@
 #   as.matrix(m1)
 # }
 # system.time(m <- read.slam('triplet.csv'))
+
+#' Read a sparse matrix from a file and return a matrix
+#'
+#' Reading matrices from files can be time consuming depending on the size of
+#' the matrix. \code{read.matrix} implements a fairly efficient routine to 
+#' read in sparse matrices and return dense matrix counterparts.
+#'
+#' Matrices that have dimensions on the order of thousands can be slow to load
+#' into R. 'read.matrix' provides an efficient implementation for reading sparse
+#' matrices in triplet form from a file or other connection. This version
+#' removes dependencies from other packages and shows a speed improvement over
+#' those methods.
+#'
+#' The primary benefit of this function is that named rows and columns can be
+#' used as opposed to integer indexes, as compared to the \code{slam} package.
+#' The other main motivation is that if the memory is available, dense matrix
+#' calculations can be faster than their sparse counterparts, not to mention
+#' having a wider range of operators available.
+#'
+#' When header == TRUE, the row names and/or column names are read from the
+#' file. The names are expected to be comma separated in a single line.
+#'
+#' Various methods can be used to construct a sparse matrix representation
+#' that is used as the basis for constructing the dense matrix. Currently only
+#' the \code{assignMatrixDense} function is available, which works well for
+#' matrices in triplet form.
+#'
+#' 
+#' @param file A file or connection to read from 
+#' @param header Whether header lines exist defining all possible rows an
+#'  columns. If this is false, then the defined triplet elements will produce
+#'  the complete set of rows and columns.
+#' @param skip The number of rows to skip. This assumes there is a single
+#'  header line, which is skipped.
+#' @param row.ids If header is TRUE, the row number that defines the row.ids
+#'  If header == FALSE, the row.ids to use for the matrix
+#' @param col.ids If header is TRUE, the col number that defines the col.ids
+#'  If header == FALSE, the col.ids to use for the matrix
+#' @param colClasses The classes to use for the columns in the triplet file 
+#' @param assign.fn The function to use to construct the sparse representation
+#'  that is then converted to a dense matrix
+#' @param filter.fn An optional function used to filter/clean the input data
+#'  and/or row/column ids. The signature of filter.fn must have arguments for
+#'  data, row.ids, and col.ids
+#' @param ... Additional arguments to pass to the construction portion of the
+#'  implementation
+#' @return A matrix object generated from sparse triplet data
+#' @author Brian Lee Yung Rowe
+#' @keywords array
+#' @examples
+#' \dontrun{
+#'   path <- system.file('sample-data/triplet.csv', package='futile.matrix')
+#'   m <- read.matrix(path)
+#' 
+#'   rows <- paste('row', 1:10000, sep='.')
+#'   cols <- paste('col', 1:10000, sep='.')
+#'   n <- read.matrix(path, row.ids=rows, col.ids=cols)
+#' }
 read.matrix <- function(file, header=FALSE, skip=1, 
   row.ids=NULL, col.ids=NULL,
   colClasses=c('character','character','numeric'), 
