@@ -22,10 +22,10 @@ ct(m)
 \section{Details}{
 
 This is a convenience function to compute the conjugate transpose. For
-real-valued matrices, ct(m) == t(m).
+real-valued matrices, ct(m) = t(m).
 }
 \examples{
-x <- rcomp(10)
+x <- matrix(rcomp(16), nrow=4)
 ct(x)
 }
 

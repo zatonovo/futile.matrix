@@ -22,7 +22,7 @@
 #' @aliases futile.matrix-package futile.matrix
 #' @docType package
 #' @exportPattern "^[^\\.]"
-#' @import lambda.r lambda.tools futile.logger RMTstat
+#' @import utils lambda.r lambda.tools futile.logger RMTstat
 #' @author Brian Lee Yung Rowe <r@zatonovo.com> 
 #' @seealso  \code{\link{select}}, \code{\link{expand}}, \code{\link{read.matrix}} 
 #' @references 

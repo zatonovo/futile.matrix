@@ -20,7 +20,7 @@ MaximumLikelihoodFit(...) %as% list(...)
 #' @return The eigenvalue associated with the upper bound of the noise
 #' spectrum
 #' @examples
-#' cutoff(rmatrix(WignerModel(100))
+#' cutoff(rmatrix(WignerModel(100)))
 cutoff(p) %::% matrix : numeric
 cutoff(p) %as% {
   es <- eigen(p, symmetric=TRUE)

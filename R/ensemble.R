@@ -158,7 +158,7 @@ rmatrix(model) %when% {
 #' Ensemble(count, model)
 #'
 #' @name RandomMatrixModel
-#' @aliases WignerModel WignerMatrix WishartModel WishartMatrix JacobiModel JacobiMatrix Ensemble print.Ensemble
+#' @aliases WignerModel WignerMatrix WishartModel WishartMatrix JacobiModel JacobiMatrix Ensemble
 #' @param real Whether the matrix has real components or not
 #' @param n Number of rows
 #' @param m Number of columns
@@ -222,6 +222,15 @@ Ensemble(count, model) %as%
   out
 }
 
+#' Print a random matrix ensemble
+#'
+#' Pretty print the ensemble instead of dumping a bunch of matrices
+#'
+#' @param x An ensemble of random matrices
+#' @param ... Reserved for later
+#' @return Used for side-effects
+#' @seealso \code{\link{Ensemble}}
+#' @S3method print Ensemble
 print.Ensemble <- function(x, ...)
 {
   cat("\nClass:", attr(x,'model'))
