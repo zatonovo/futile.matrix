@@ -1,6 +1,6 @@
 Package: futile.matrix
 Type: Package
-Title: Random matrix generation and manipulation
+Title: Random Matrix Generation and Manipulation
 Version: 1.2.3
 Date: 2016-05-10
 Author: Brian Lee Yung Rowe
@@ -16,7 +16,8 @@ Imports:
 Suggests:
     RUnit
 Description: A collection of functions for manipulating matrices and generating
-    ensembles of random matrices
+    ensembles of random matrices. Used primarily to identify the cutoff point
+    for the noise portion of the eigenvalue spectrum.
 License: LGPL-3
 LazyLoad: yes
 RoxygenNote: 5.0.1
