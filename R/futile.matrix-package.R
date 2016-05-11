@@ -8,8 +8,8 @@
 #' \tabular{ll}{
 #' Package: \tab futile.matrix\cr
 #' Type: \tab Package\cr
-#' Version: \tab 1.2.3\cr
-#' Date: \tab 2016-05-10\cr
+#' Version: \tab 1.2.4\cr
+#' Date: \tab 2016-05-11\cr
 #' License: \tab LGPL-3\cr
 #' LazyLoad: \tab yes\cr
 #' }
