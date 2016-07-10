@@ -28,7 +28,7 @@ cutoff(p) %as% {
 }
 
 # Provide a default implementation
-cutoff(p, es, estimator) %::% matrix : list : RandomMatrixFilter : numeric
+cutoff(p, es, estimator) %::% matrix : eigen : RandomMatrixFilter : numeric
 cutoff(p, es, estimator) %when% {
   ! estimator %hasa% fit.fn
 } %as% {
@@ -37,7 +37,7 @@ cutoff(p, es, estimator) %when% {
   cutoff(p, es, estimator)
 }
 
-cutoff(p, es, estimator) %::% matrix : list : RandomMatrixFilter : numeric
+cutoff(p, es, estimator) %::% matrix : eigen : RandomMatrixFilter : numeric
 cutoff(p, es, estimator) %as% {
   fit <- estimator$fit.fn(es)
   Q <- fit$par[1]
@@ -47,6 +47,13 @@ cutoff(p, es, estimator) %as% {
   lambda.plus
 }
 
+# This is for backwards compatibility since newer versions of R use an
+# 'eigen' class for the result of eigen instead of 'list'
+cutoff(p, es, estimator) %::% matrix : list : RandomMatrixFilter : numeric
+cutoff(p, es, estimator) %as% {
+  class(es) <- c('eigen', class(es))
+  cutoff(p, es, estimator)
+}
 
 #' Fit the eigenvalue spectrum to model
 #'
