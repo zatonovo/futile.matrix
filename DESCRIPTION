@@ -14,7 +14,7 @@ Imports:
     futile.logger (>= 1.3.0),
     RMTstat
 Suggests:
-    RUnit
+    testit
 Description: A collection of functions for manipulating matrices and generating
     ensembles of random matrices. Used primarily to identify the cutoff point
     for the noise portion of the eigenvalue spectrum.
